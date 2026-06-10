@@ -29,11 +29,13 @@ class Program
         {
             foreach (string carpeta in carpetas)
             {
-                string nombreCarpeta = Path.GetFileName(carpeta);
-                Console.WriteLine($"[carperta]{nombreCarpeta}");
+                FileInfo informacionDeCarpeta = new FileInfo(carpeta);
+                string nombreCarpeta = informacionDeCarpeta.Name;
+                Console.WriteLine($"[carpeta]{nombreCarpeta}");
             }
         }
         Console.WriteLine();
+        Console.WriteLine("ARCHIVOS ENCONTRADOS");
         string[] archivos = Directory.GetFiles(ruta);
         if (archivos.Length == 0)
         {
@@ -44,10 +46,24 @@ class Program
             foreach (string archivo in archivos)
             {
                 FileInfo informacionDeArchivo = new FileInfo(archivo);
-                double tamanioArchivo = informacionDeArchivo.Length / 1024;
+                double tamanioArchivo = informacionDeArchivo.Length / 1024.0;
+                Console.WriteLine($"[archivo]{informacionDeArchivo.Name} - {tamanioArchivo.ToString("0.00")} KB");
             }
         }
         Console.WriteLine();
+        string rutaAlternativaCsv = $"{ruta}\\reporte_archivos.csv";
+        StreamWriter escribir = new StreamWriter(rutaAlternativaCsv);
+        escribir.WriteLine("Nombre del archivo;Tamaño (KB);Fecha de ultima Modificacion");
+        foreach (string archivo in archivos)
+        {
+            FileInfo informacionDeArchivo = new FileInfo(archivo);
+            double tamanioArchivo = informacionDeArchivo.Length / 1024;
+            DateTime ultimaModificacion = informacionDeArchivo.LastWriteTime;
+            string linea = $"{informacionDeArchivo.Name};{tamanioArchivo.ToString("0.00")};{ultimaModificacion.ToString("dd/MM/yyyy HH:mm:ss")}";
+            escribir.WriteLine(linea);
+        }
+        escribir.Close();
+        Console.WriteLine("\nEl reporte se guardo con exito");
     }
 }
 
